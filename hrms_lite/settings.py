@@ -92,7 +92,9 @@ USE_TZ = True
 STATIC_URL = "static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+# For easy/free deployments: avoid requiring `collectstatic` for the app to start.
+# (Manifest-based storage needs a generated manifest file, otherwise static() can crash.)
+STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
