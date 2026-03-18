@@ -12,29 +12,36 @@
   <link href="{% static 'css/style.css' %}" rel="stylesheet">
 </head>
 <body class="hrms-layout">
-  <aside class="hrms-sidebar">
-    <a href="{% url 'dashboard' %}" class="hrms-sidebar-brand">HRMS Lite</a>
+  <aside class="hrms-sidebar" id="hrmsSidebar">
+    <a href="{% url 'dashboard' %}" class="hrms-sidebar-brand">
+      <span class="hrms-sidebar-text">HRMS Lite</span>
+    </a>
     <nav class="hrms-sidebar-nav">
       <a href="{% url 'dashboard' %}" class="hrms-sidebar-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
         <span class="hrms-sidebar-icon">📊</span>
-        Dashboard
+        <span class="hrms-sidebar-text">Dashboard</span>
       </a>
       <a href="{% url 'employees:employee_list' %}" class="hrms-sidebar-link {% if request.resolver_match.url_name == 'employee_list' or request.resolver_match.url_name == 'employee_attendance' %}active{% endif %}">
         <span class="hrms-sidebar-icon">👥</span>
-        Manage Employees
+        <span class="hrms-sidebar-text">Manage Employees</span>
       </a>
       <a href="{% url 'employees:employee_add' %}" class="hrms-sidebar-link {% if request.resolver_match.url_name == 'employee_add' %}active{% endif %}">
         <span class="hrms-sidebar-icon">➕</span>
-        Add Employee
+        <span class="hrms-sidebar-text">Add Employee</span>
       </a>
       <a href="{% url 'employees:attendance_add' %}" class="hrms-sidebar-link {% if request.resolver_match.url_name == 'attendance_add' %}active{% endif %}">
         <span class="hrms-sidebar-icon">📅</span>
-        Add Attendance
+        <span class="hrms-sidebar-text">Add Attendance</span>
       </a>
     </nav>
   </aside>
   <div class="hrms-wrap">
     <header class="hrms-topbar">
+      <button class="hrms-hamburger" id="hrmsHamburger" type="button" aria-label="Open menu" aria-controls="hrmsSidebar" aria-expanded="false">
+        <span class="hrms-hamburger-lines" aria-hidden="true">
+          <span></span><span></span><span></span>
+        </span>
+      </button>
       <h1 class="hrms-topbar-title">{% block page_heading %}HR Dashboard{% endblock %}</h1>
       <form action="{% url 'employees:employee_list' %}" method="get" class="hrms-search-form">
         <input type="search" name="q" value="{{ request.GET.q|default:'' }}" class="hrms-search-input" placeholder="Search employees…">
@@ -45,5 +52,45 @@
       {% block content %}{% endblock %}
     </main>
   </div>
+
+  <div id="hrmsBackdrop" class="hrms-backdrop" hidden></div>
+
+  <script>
+    (function() {
+      var hamburger = document.getElementById('hrmsHamburger');
+      var sidebar = document.getElementById('hrmsSidebar');
+      var backdrop = document.getElementById('hrmsBackdrop');
+      if (!hamburger || !sidebar || !backdrop) return;
+
+      function setOpen(open) {
+        document.body.classList.toggle('hrms-sidebar-open', open);
+        hamburger.setAttribute('aria-expanded', open ? 'true' : 'false');
+        backdrop.hidden = !open;
+      }
+
+      hamburger.addEventListener('click', function() {
+        var open = !document.body.classList.contains('hrms-sidebar-open');
+        setOpen(open);
+      });
+
+      backdrop.addEventListener('click', function() {
+        setOpen(false);
+      });
+
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') setOpen(false);
+      });
+
+      var links = sidebar.querySelectorAll('.hrms-sidebar-link, .hrms-sidebar-brand');
+      links.forEach(function(link) {
+        link.addEventListener('click', function() {
+          // Close drawer after navigation on mobile.
+          if (window.matchMedia && window.matchMedia('(max-width: 576px)').matches) {
+            setOpen(false);
+          }
+        });
+      });
+    })();
+  </script>
 </body>
 </html>

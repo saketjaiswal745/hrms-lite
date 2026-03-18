@@ -8,9 +8,9 @@
 {% if search_query %}
   <p class="text-muted small mb-3">Showing results for <strong>{{ search_query }}</strong>. <a href="{% url 'employees:employee_list' %}">Clear search</a></p>
 {% endif %}
-<div class="d-flex justify-content-between align-items-center mb-3">
+<div class="d-flex justify-content-between align-items-center mb-3 flex-column flex-sm-row gap-2">
   <span></span>
-  <a href="{% url 'employees:employee_add' %}" class="btn btn-primary hrms-btn-primary">+ Add Employee</a>
+  <a href="{% url 'employees:employee_add' %}" class="btn btn-primary hrms-btn-primary w-auto mx-auto mx-sm-0">+ Add Employee</a>
 </div>
 <div class="hrms-card">
   <div class="hrms-card-header">Employees</div>
