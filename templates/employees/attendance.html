@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% load form_extras %}
+
+{% block title %}Attendance – HRMS Lite{% endblock %}
+{% block page_heading %}Attendance{% endblock %}
+
+{% block content %}
+<a href="{% url 'employees:employee_list' %}" class="hrms-back">&larr; Back to employees</a>
+
+<div class="row g-4">
+  <div class="col-lg-5">
+    <div class="hrms-card mb-4">
+      <div class="hrms-card-header">Date Filter</div>
+      <div class="hrms-card-body">
+        <form method="get" action="{% url 'employees:employee_attendance' employee.pk %}" class="row g-3 align-items-end">
+          <div class="col-md-6">
+            <label class="form-label hrms-label">From</label>
+            <input type="date" name="from" value="{{ from_date }}" class="form-control hrms-input">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label hrms-label">To</label>
+            <input type="date" name="to" value="{{ to_date }}" class="form-control hrms-input">
+          </div>
+          <div class="col-6 d-grid">
+            <button type="submit" class="btn btn-primary hrms-btn-primary">Apply</button>
+          </div>
+          <div class="col-6 d-grid">
+            {% if from_date or to_date %}
+              <a href="{% url 'employees:employee_attendance' employee.pk %}" class="btn btn-outline-secondary">Clear</a>
+            {% else %}
+              <button type="button" class="btn btn-outline-secondary" disabled>Clear</button>
+            {% endif %}
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="hrms-card mb-4">
+      <div class="hrms-card-header">Employee</div>
+      <div class="hrms-card-body">
+        <h4 class="fw-bold mb-2">{{ employee.full_name }}</h4>
+        <p class="mb-1 text-muted small"><strong>ID</strong> {{ employee.employee_id }}</p>
+        <p class="mb-1 text-muted small"><strong>Email</strong> {{ employee.email }}</p>
+        <p class="mb-0 text-muted small"><strong>Department</strong> {{ employee.department }}</p>
+      </div>
+    </div>
+    <div class="hrms-card">
+      <div class="hrms-card-header">Mark Attendance</div>
+      <div class="hrms-card-body">
+        <form method="post" novalidate>
+          {% csrf_token %}
+          <div class="mb-3">
+            <label class="form-label hrms-label">Date</label>
+            {{ form.date|add_class:"form-control hrms-input" }}
+            {% if form.date.errors %}
+              <div class="text-danger small mt-1">{{ form.date.errors|striptags }}</div>
+            {% endif %}
+          </div>
+          <div class="mb-4">
+            <label class="form-label hrms-label">Status</label>
+            {{ form.status|add_class:"form-select hrms-input" }}
+            {% if form.status.errors %}
+              <div class="text-danger small mt-1">{{ form.status.errors|striptags }}</div>
+            {% endif %}
+          </div>
+          {% if form.non_field_errors %}
+            <div class="hrms-alert-danger mb-3">{{ form.non_field_errors }}</div>
+          {% endif %}
+          <button type="submit" class="btn btn-primary w-100 hrms-btn-primary">Save Attendance</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-7">
+    <div class="hrms-card">
+      <div class="hrms-card-header">Attendance History</div>
+      <div class="hrms-card-body table-wrap">
+        <div class="d-flex flex-wrap gap-2 mb-3">
+          <span class="badge bg-success">Present days (all time): {{ total_present_days }}</span>
+          {% if from_date or to_date %}
+            <span class="badge bg-primary">Present days (selected range): {{ present_days }}</span>
+          {% else %}
+            <span class="badge bg-primary">Present days: {{ present_days }}</span>
+          {% endif %}
+        </div>
+
+        {% if attendances %}
+          <div class="table-responsive">
+            <table class="hrms-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Status</th>
+                  <th>Recorded</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for record in attendances %}
+                <tr>
+                  <td>{{ record.date }}</td>
+                  <td>
+                    {% if record.status == "present" %}
+                      <span class="hrms-badge-present">Present</span>
+                    {% else %}
+                      <span class="hrms-badge-absent">Absent</span>
+                    {% endif %}
+                  </td>
+                  <td class="text-muted small">{{ record.created_at|date:"M d, Y H:i" }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <div class="hrms-empty">
+            <div class="hrms-empty-icon">📅</div>
+            <p class="hrms-empty-title">No attendance records yet</p>
+            {% if from_date or to_date %}
+              <p class="mb-0">No records found for the selected date range.</p>
+            {% else %}
+              <p class="mb-0">Mark attendance using the form on the left.</p>
+            {% endif %}
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

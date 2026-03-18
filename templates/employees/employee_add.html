@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% load form_extras %}
+
+{% block title %}Add Employee – HRMS Lite{% endblock %}
+{% block page_heading %}Add Employee{% endblock %}
+
+{% block content %}
+<div class="mb-3">
+  <a href="{% url 'employees:employee_list' %}" class="hrms-back">&larr; Back to employees</a>
+</div>
+<div class="row justify-content-center">
+  <div class="col-lg-6">
+    <div class="hrms-card">
+      <div class="hrms-card-header">New Employee</div>
+      <div class="hrms-card-body">
+        <form method="post" action="{% url 'employees:employee_add' %}" novalidate>
+          {% csrf_token %}
+          {% if form.non_field_errors %}
+            <div class="hrms-alert-danger mb-3">{{ form.non_field_errors }}</div>
+          {% endif %}
+          <div class="mb-3">
+            <label class="form-label hrms-label">Employee ID</label>
+            {{ form.employee_id|add_class:"form-control hrms-input" }}
+            {% if form.employee_id.errors %}
+              <div class="text-danger small mt-1">{{ form.employee_id.errors|striptags }}</div>
+            {% endif %}
+          </div>
+          <div class="mb-3">
+            <label class="form-label hrms-label">Full Name</label>
+            {{ form.full_name|add_class:"form-control hrms-input" }}
+            {% if form.full_name.errors %}
+              <div class="text-danger small mt-1">{{ form.full_name.errors|striptags }}</div>
+            {% endif %}
+          </div>
+          <div class="mb-3">
+            <label class="form-label hrms-label">Email</label>
+            {{ form.email|add_class:"form-control hrms-input" }}
+            {% if form.email.errors %}
+              <div class="text-danger small mt-1">{{ form.email.errors|striptags }}</div>
+            {% endif %}
+          </div>
+          <div class="mb-4">
+            <label class="form-label hrms-label">Department</label>
+            {{ form.department|add_class:"form-control hrms-input" }}
+            {% if form.department.errors %}
+              <div class="text-danger small mt-1">{{ form.department.errors|striptags }}</div>
+            {% endif %}
+          </div>
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary hrms-btn-primary">Save Employee</button>
+            <a href="{% url 'employees:employee_list' %}" class="btn btn-outline-secondary">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

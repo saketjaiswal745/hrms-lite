@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+{% load form_extras %}
+
+{% block title %}Add Attendance – HRMS Lite{% endblock %}
+{% block page_heading %}Add Attendance{% endblock %}
+
+{% block content %}
+<div class="mb-3">
+  <a href="{% url 'employees:employee_list' %}" class="hrms-back">&larr; Back to employees</a>
+</div>
+<div class="row justify-content-center">
+  <div class="col-lg-6">
+    <div class="hrms-card">
+      <div class="hrms-card-header">Mark Attendance</div>
+      <div class="hrms-card-body">
+        <form method="post" action="{% url 'employees:attendance_add' %}" novalidate>
+          {% csrf_token %}
+          {% if form.non_field_errors %}
+            <div class="hrms-alert-danger mb-3">{{ form.non_field_errors }}</div>
+          {% endif %}
+          <div class="mb-3">
+            <label class="form-label hrms-label">Employee</label>
+            <div class="hrms-employee-search-wrap">
+              <input type="text" id="employee_search" class="form-control hrms-input hrms-employee-search-input" placeholder="Search by name, ID, email, department…" autocomplete="off" aria-label="Search employee" aria-autocomplete="list" aria-expanded="false" role="combobox">
+              <span class="hrms-employee-search-icon" aria-hidden="true">🔍</span>
+              <ul id="employee_suggestions" class="hrms-employee-suggestions" role="listbox" aria-label="Employee suggestions" hidden></ul>
+            </div>
+            {{ form.employee|add_class:"form-select hrms-input hrms-employee-select-hidden" }}
+            {% if form.employee.errors %}
+              <div class="text-danger small mt-1">{{ form.employee.errors|striptags }}</div>
+            {% endif %}
+          </div>
+          <script>
+            (function() {
+              var searchInput = document.getElementById('employee_search');
+              var selectEl = document.getElementById('id_employee_select');
+              var listEl = document.getElementById('employee_suggestions');
+              if (!searchInput || !selectEl || !listEl) return;
+
+              function getOptions() {
+                var options = [];
+                for (var i = 0; i < selectEl.options.length; i++) {
+                  var opt = selectEl.options[i];
+                  if (opt.value === '') continue;
+                  options.push({ value: opt.value, text: opt.textContent.trim() });
+                }
+                return options;
+              }
+
+              function showSuggestions(matches) {
+                listEl.innerHTML = '';
+                listEl.hidden = true;
+                if (matches.length === 0) return;
+                matches.forEach(function(m) {
+                  var li = document.createElement('li');
+                  li.setAttribute('role', 'option');
+                  li.setAttribute('data-value', m.value);
+                  li.className = 'hrms-employee-suggestion-item';
+                  li.textContent = m.text;
+                  li.addEventListener('click', function() {
+                    selectEl.value = m.value;
+                    searchInput.value = m.text;
+                    listEl.hidden = true;
+                    searchInput.setAttribute('aria-expanded', 'false');
+                  });
+                  listEl.appendChild(li);
+                });
+                listEl.hidden = false;
+                searchInput.setAttribute('aria-expanded', 'true');
+              }
+
+              function hideSuggestions() {
+                listEl.hidden = true;
+                listEl.innerHTML = '';
+                searchInput.setAttribute('aria-expanded', 'false');
+              }
+
+              searchInput.addEventListener('input', function() {
+                var q = this.value.trim().toLowerCase();
+                var options = getOptions();
+                if (q === '') {
+                  showSuggestions(options);
+                  return;
+                }
+                var matches = options.filter(function(o) { return o.text.toLowerCase().indexOf(q) !== -1; });
+                showSuggestions(matches);
+              });
+
+              searchInput.addEventListener('focus', function() {
+                var q = this.value.trim().toLowerCase();
+                var options = getOptions();
+                if (q === '') {
+                  showSuggestions(options);
+                } else {
+                  var matches = options.filter(function(o) { return o.text.toLowerCase().indexOf(q) !== -1; });
+                  showSuggestions(matches);
+                }
+              });
+
+              searchInput.addEventListener('blur', function() {
+                setTimeout(hideSuggestions, 200);
+              });
+
+              document.addEventListener('keydown', function(e) {
+                if (e.target !== searchInput) return;
+                if (e.key === 'Escape') { hideSuggestions(); searchInput.blur(); }
+              });
+
+              var opts = getOptions();
+              var selected = selectEl.value;
+              if (selected) {
+                var found = opts.filter(function(o) { return o.value === selected; })[0];
+                if (found) searchInput.value = found.text;
+              }
+            })();
+          </script>
+          <div class="mb-3">
+            <label class="form-label hrms-label">Date</label>
+            {{ form.date|add_class:"form-control hrms-input" }}
+            {% if form.date.errors %}
+              <div class="text-danger small mt-1">{{ form.date.errors|striptags }}</div>
+            {% endif %}
+          </div>
+          <div class="mb-4">
+            <label class="form-label hrms-label">Status</label>
+            {{ form.status|add_class:"form-select hrms-input" }}
+            {% if form.status.errors %}
+              <div class="text-danger small mt-1">{{ form.status.errors|striptags }}</div>
+            {% endif %}
+          </div>
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary hrms-btn-primary">Save Attendance</button>
+            <a href="{% url 'employees:employee_list' %}" class="btn btn-outline-secondary">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
