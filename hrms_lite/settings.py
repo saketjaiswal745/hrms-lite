@@ -95,6 +95,8 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 # For easy/free deployments: avoid requiring `collectstatic` for the app to start.
 # (Manifest-based storage needs a generated manifest file, otherwise static() can crash.)
 STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
+# Let WhiteNoise find static assets from `STATICFILES_DIRS` without requiring `collectstatic`.
+WHITENOISE_USE_FINDERS = True
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
